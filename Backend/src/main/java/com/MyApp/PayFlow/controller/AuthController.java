@@ -25,12 +25,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 import java.time.Duration;
@@ -152,5 +150,18 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> me(Authentication authentication){
+        Map<String , String> map = new HashMap<>();
 
+        String email = authentication.getName();
+
+        UserEntity user  = userRepository.findByEmail(email).orElseThrow(() ->new RuntimeException("Try to log in again"));
+
+        map.put("email" , user.getEmail());
+        map.put("Name" , user.getName());
+        map.put("id" , user.getId().toString());
+
+        return ResponseEntity.ok(map);
+    }
 }

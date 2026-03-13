@@ -101,7 +101,7 @@ public class ScheduledPaymentWorker {
 
                 log.info("Debit transaction created for paymentId={}", payment.getId());
 
-                /* 2️⃣ Credit Transaction */
+                /* Credit Transaction */
 
                 TransactionEntity creditTx = new TransactionEntity();
 

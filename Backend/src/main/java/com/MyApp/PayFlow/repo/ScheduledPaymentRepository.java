@@ -1,6 +1,9 @@
 package com.MyApp.PayFlow.repo;
 
 import com.MyApp.PayFlow.entity.ScheduledPaymentEntity;
+import com.MyApp.PayFlow.entity.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -19,4 +22,12 @@ public interface ScheduledPaymentRepository extends JpaRepository<ScheduledPayme
             AND s.nextExecution <= :now
             """)
     List<ScheduledPaymentEntity> findPaymentsToExecute(Instant now);
+
+    // Fetch scheduled payments for a sender
+    Page<ScheduledPaymentEntity> findBySenderOrderByScheduledAtDesc(UserEntity sender, Pageable pageable);
+
+    // Optional: filter by date range
+    Page<ScheduledPaymentEntity> findBySenderAndScheduledAtBetweenOrderByScheduledAtDesc(
+            UserEntity sender, Instant from, Instant to, Pageable pageable
+    );
 }

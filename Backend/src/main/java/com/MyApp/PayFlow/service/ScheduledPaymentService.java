@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -74,5 +75,35 @@ public class ScheduledPaymentService {
         payment.setNextExecution(scheduledAt);
 
         return scheduledPaymentRepository.save(payment);
+    }
+
+    @Transactional
+    public void cancelScheduledPayment(UUID paymentId, String userEmail){
+
+        log.info("Cancel request received for paymentId={}", paymentId);
+
+        ScheduledPaymentEntity payment = scheduledPaymentRepository
+                .findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("Scheduled payment not found"));
+
+        // Security check
+        if(!payment.getSender().getEmail().equals(userEmail)){
+            throw new RuntimeException("You are not allowed to cancel this payment");
+        }
+
+        // Check if already processed
+        if(payment.getStatus() == ScheduledPaymentStatus.COMPLETED){
+            throw new RuntimeException("Completed payments cannot be cancelled");
+        }
+
+        if(payment.getStatus() == ScheduledPaymentStatus.FAILED){
+            throw new RuntimeException("Payment already cancelled");
+        }
+
+        payment.setStatus(ScheduledPaymentStatus.FAILED);
+
+        scheduledPaymentRepository.save(payment);
+
+        log.info("Scheduled payment cancelled successfully paymentId={}", paymentId);
     }
 }
