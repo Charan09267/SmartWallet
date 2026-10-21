@@ -29,10 +29,8 @@ import java.util.UUID;
 @RequestMapping("api/v1/user/wallet")
 public class WalletController {
 
-    private final WalletRepo walletRepo;
     private final WalletService walletService;
     private final UserRepository userRepository;
-    private final TransactionRepo transactionRepo;
 
     @GetMapping("/balance")
     public ResponseEntity<WalletBalanceResponse> getBalance(Authentication authentication){

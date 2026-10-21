@@ -31,7 +31,6 @@ public class PaymentProcessor {
     @Transactional
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void processPayment(PaymentEvent event){
-//        logger.info("Entered the payment processing async method....");
 
         UUID transactionId = event.transactionId();
         try{

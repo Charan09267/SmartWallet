@@ -4,6 +4,7 @@ package com.MyApp.PayFlow.entity;
 import com.MyApp.PayFlow.entity.enums.ScheduleType;
 import com.MyApp.PayFlow.entity.enums.ScheduledPaymentStatus;
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
+@Builder
 @Entity
 @Table(name = "scheduled_payments")
 @Getter
@@ -54,7 +56,10 @@ public class ScheduledPaymentEntity extends BaseEntity {
 
     private Instant nextExecution;
 
-    private int retryCount = 0;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private Integer retryCount = 0;
 
     @Version
     private int version;
