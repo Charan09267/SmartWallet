@@ -1,12 +1,11 @@
 package com.MyApp.PayFlow.controller;
 
-import com.MyApp.PayFlow.dto.ScheduledPaymentRequest;
+import com.MyApp.PayFlow.dto.request.ScheduledPaymentRequest;
 import com.MyApp.PayFlow.entity.ScheduledPaymentEntity;
-import com.MyApp.PayFlow.service.ScheduledPaymentService;
+import com.MyApp.PayFlow.service.scheduledPayment.ScheduledPaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;

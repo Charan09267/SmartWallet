@@ -1,5 +1,5 @@
 
-package com.MyApp.PayFlow.service;
+package com.MyApp.PayFlow.service.scheduledPayment;
 
 import com.MyApp.PayFlow.entity.ScheduledPaymentEntity;
 import com.MyApp.PayFlow.entity.UserEntity;

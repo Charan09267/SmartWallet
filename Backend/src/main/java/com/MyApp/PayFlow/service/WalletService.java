@@ -1,8 +1,7 @@
 package com.MyApp.PayFlow.service;
 
 
-import com.MyApp.PayFlow.AsyncProcesses.PaymentProcessor;
-import com.MyApp.PayFlow.dto.WalletBalanceResponse;
+import com.MyApp.PayFlow.dto.response.WalletBalanceResponse;
 import com.MyApp.PayFlow.entity.TransactionEntity;
 import com.MyApp.PayFlow.entity.UserEntity;
 import com.MyApp.PayFlow.entity.WalletEntity;
@@ -17,12 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
-import org.springframework.retry.support.RetrySynchronizationManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

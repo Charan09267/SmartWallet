@@ -1,8 +1,8 @@
 package com.MyApp.PayFlow.controller;
 
 
-import com.MyApp.PayFlow.dto.LoginRequestDTO;
-import com.MyApp.PayFlow.dto.RegisterRequest;
+import com.MyApp.PayFlow.dto.request.LoginRequestDTO;
+import com.MyApp.PayFlow.dto.request.RegisterRequest;
 import com.MyApp.PayFlow.entity.UserEntity;
 import com.MyApp.PayFlow.entity.WalletEntity;
 import com.MyApp.PayFlow.entity.enums.AuthProvider;
@@ -14,7 +14,6 @@ import com.MyApp.PayFlow.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;

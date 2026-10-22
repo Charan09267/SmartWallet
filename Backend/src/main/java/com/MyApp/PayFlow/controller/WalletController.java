@@ -1,27 +1,18 @@
 package com.MyApp.PayFlow.controller;
 
-import com.MyApp.PayFlow.dto.WalletBalanceResponse;
+import com.MyApp.PayFlow.dto.response.WalletBalanceResponse;
 import com.MyApp.PayFlow.entity.TransactionEntity;
 import com.MyApp.PayFlow.entity.UserEntity;
-import com.MyApp.PayFlow.entity.WalletEntity;
-import com.MyApp.PayFlow.repo.TransactionRepo;
 import com.MyApp.PayFlow.repo.UserRepository;
-import com.MyApp.PayFlow.repo.WalletRepo;
 import com.MyApp.PayFlow.service.WalletService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 

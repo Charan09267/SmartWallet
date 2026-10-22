@@ -1,4 +1,4 @@
-package com.MyApp.PayFlow.dto;
+package com.MyApp.PayFlow.dto.response;
 
 import lombok.*;
 

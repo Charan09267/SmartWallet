@@ -1,11 +1,10 @@
-package com.MyApp.PayFlow.dto;
+package com.MyApp.PayFlow.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter

@@ -1,8 +1,8 @@
 
 package com.MyApp.PayFlow.service;
 
-import com.MyApp.PayFlow.dto.ScheduledPaymentDto;
-import com.MyApp.PayFlow.dto.TransactinoHistoryDto;
+import com.MyApp.PayFlow.dto.response.ScheduledPaymentDto;
+import com.MyApp.PayFlow.dto.response.TransactinoHistoryDto;
 import com.MyApp.PayFlow.entity.ScheduledPaymentEntity;
 import com.MyApp.PayFlow.entity.TransactionEntity;
 import com.MyApp.PayFlow.entity.UserEntity;

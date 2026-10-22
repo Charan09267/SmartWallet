@@ -1,4 +1,4 @@
-package com.MyApp.PayFlow.dto;
+package com.MyApp.PayFlow.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
