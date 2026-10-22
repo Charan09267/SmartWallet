@@ -98,25 +98,19 @@ public class ScheduledPaymentService {
                     "Wallet currencies do not match");
         }
 
-        ScheduledPaymentEntity payment =
-                new ScheduledPaymentEntity();
+        ScheduledPaymentEntity payment = ScheduledPaymentEntity.builder()
+                .sender(sender)
+                .senderWallet(senderWallet)
+                .receiver(receiver)
+                .receiverWallet(receiverWallet)
+                .amount(amount)
+                .message(message)
+                .status(ScheduledPaymentStatus.ACTIVE)
+                .scheduleType(ScheduleType.ONE_TIME)
+                .scheduledAt(scheduledAt)
+                .nextExecution(scheduledAt)
+                .build();
 
-        payment.setSender(sender);
-        payment.setSenderWallet(senderWallet);
-
-        payment.setReceiver(receiver);
-        payment.setReceiverWallet(receiverWallet);
-
-        payment.setAmount(amount);
-        payment.setMessage(message);
-
-        // ACTIVE means the payment is eligible for execution
-        // once its scheduled time arrives.
-        payment.setStatus(ScheduledPaymentStatus.ACTIVE);
-        payment.setScheduleType(ScheduleType.ONE_TIME);
-
-        payment.setScheduledAt(scheduledAt);
-        payment.setNextExecution(scheduledAt);
 
         ScheduledPaymentEntity savedPayment =
                 scheduledPaymentRepository.save(payment);

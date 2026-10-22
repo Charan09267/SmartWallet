@@ -35,6 +35,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/public")
@@ -45,27 +46,42 @@ public class AuthController {
     private final AppUserDetailService appUserDetailService;
     private final PasswordEncoder passwordEncoder;
 
-
-    //Repositories
+    // Repositories used to access user and wallet data during registration.
     private final UserRepository userRepository;
     private final WalletRepo walletRepo;
 
-    //Logger
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private static final Logger logger =
+            LoggerFactory.getLogger(AuthController.class);
 
-
+    /**
+     * Authenticates a user and issues a JWT through an HTTP-only cookie.
+     *
+     * @param loginRequest contains the user's email and password
+     * @return authentication result and, on success, the JWT cookie
+     */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest){
-        logger.info("User is getting logged in with {}",loginRequest.getEmail());
+    public ResponseEntity<?> login(
+            @RequestBody LoginRequestDTO loginRequest) {
 
-        try{
-            authenticate(loginRequest.getEmail(), loginRequest.getPassword());
+        logger.info("User is getting logged in with {}", loginRequest.getEmail());
 
-            final UserDetails userDetails = appUserDetailService.loadUserByUsername(loginRequest.getEmail());
+        try {
+            // Delegate credential verification to Spring Security.
+            authenticate(
+                    loginRequest.getEmail(),
+                    loginRequest.getPassword()
+            );
+
+            // Load the authenticated user's details to generate the JWT.
+            final UserDetails userDetails =
+                    appUserDetailService.loadUserByUsername(
+                            loginRequest.getEmail()
+                    );
 
             final String jwtToken = jwtUtil.generateToken(userDetails);
 
-            ResponseCookie cookie = ResponseCookie.from("jwt" , jwtToken)
+            // Store the JWT in a cookie that JavaScript cannot access.
+            ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
                     .httpOnly(true)
                     .path("/")
                     .secure(true)
@@ -73,37 +89,60 @@ public class AuthController {
                     .sameSite("Strict")
                     .build();
 
-            return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE , cookie.toString()).body(Map.of("message" , "Account verification is successfull..."));
-        }
-        catch (BadCredentialsException e){
-            Map<String , Object> error = new HashMap<>();
-            error.put("error" , true);
-            error.put("message" , "Email or Password is incorrect");
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(Map.of(
+                            "message",
+                            "Account verification is successfull..."
+                    ));
+
+        } catch (BadCredentialsException e) {
+            // Return a generic message to avoid revealing which credential failed.
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", true);
+            error.put("message", "Email or Password is incorrect");
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-        }catch (DisabledException e){
-            Map<String , Object> error = new HashMap<>();
-            error.put("error" , true);
-            error.put("message" , "Account is disabled");
+
+        } catch (DisabledException e) {
+            // Reject authentication when the account is disabled.
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", true);
+            error.put("message", "Account is disabled");
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+
         } catch (Exception e) {
-            Map<String , Object> error = new HashMap<>();
-            error.put("error",true);
+            // Handle unexpected authentication failures.
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", true);
             e.printStackTrace();
-            error.put("message" , "Authentication failed");
+            error.put("message", "Authentication failed");
+
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
-
-
     }
 
-    private void authenticate(String email , String password){
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email , password));
+    /**
+     * Authenticates the supplied credentials using Spring Security.
+     */
+    private void authenticate(String email, String password) {
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password)
+        );
     }
 
-
+    /**
+     * Clears the JWT cookie in the client's browser.
+     *
+     * @param response HTTP response used to expire the cookie
+     * @return logout confirmation
+     */
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(HttpServletResponse response){
-        Cookie cookie = new Cookie("jwt" , null);
+    public ResponseEntity<String> logout(HttpServletResponse response) {
+
+        // Expire the cookie so the browser removes its stored JWT.
+        Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
@@ -114,53 +153,71 @@ public class AuthController {
         return ResponseEntity.ok("Logged out Successfully...");
     }
 
+    /**
+     * Registers a new local user and creates an associated wallet.
+     *
+     * @param request contains the new user's registration details
+     * @return registration status and message
+     */
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterRequest request){
-        Map<String , Object> response = new HashMap<>();
+    public ResponseEntity<?> register(
+            @RequestBody RegisterRequest request) {
 
-        // Check if email already exists
+        Map<String, Object> response = new HashMap<>();
+
+        // Prevent registration when the email is already in use.
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             response.put("status", "error");
             response.put("message", "Email already exists!");
+
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
 
-        // Create new user
+        // Build the new user entity with an encoded password and default role.
         UserEntity user = new UserEntity();
         user.setName(request.getName());
         user.setEmail(request.getEmail());
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword())); // encode password
-        user.setRole(Role.USER); //default role
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setRole(Role.USER);
         user.setProvider(AuthProvider.LOCAL);
-
-
 
         logger.info("User has been created with email:- {}", user.getEmail());
 
+        // Associate a wallet with the new user.
         WalletEntity wallet = new WalletEntity();
         wallet.setUser(user);
         user.setWallet(wallet);
 
+        // Persist the user; wallet persistence depends on entity cascade settings.
         userRepository.save(user);
 
-        // Success response
         response.put("status", "success");
         response.put("message", "User registered successfully!");
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    /**
+     * Returns basic information about the currently authenticated user.
+     *
+     * @param authentication provides the authenticated principal
+     * @return the user's email, name, and ID
+     */
     @GetMapping("/me")
-    public ResponseEntity<?> me(Authentication authentication){
-        Map<String , String> map = new HashMap<>();
+    public ResponseEntity<?> me(Authentication authentication) {
 
+        Map<String, String> map = new HashMap<>();
+
+        // The authentication name is expected to contain the user's email.
         String email = authentication.getName();
 
-        UserEntity user  = userRepository.findByEmail(email).orElseThrow(() ->new RuntimeException("Try to log in again"));
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("Try to log in again"));
 
-        map.put("email" , user.getEmail());
-        map.put("Name" , user.getName());
-        map.put("id" , user.getId().toString());
+        map.put("email", user.getEmail());
+        map.put("Name", user.getName());
+        map.put("id", user.getId().toString());
 
         return ResponseEntity.ok(map);
     }
